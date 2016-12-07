@@ -26,27 +26,27 @@
 "use strict" ;
 
 var smartcity = require('./smartcity'),
+    withFrequency = require('./utils').withFrequency, 
+    communications = require('./communications'),
     LOOP_DELAY = 500,
     INFO_DELAY = 20,
-    dataCounter = INFO_DELAY;
+    infoHandler;
 
 function showInfo() {
-    if (dataCounter == 0) {
-        console.log('Data: %s', JSON.stringify(smartcity.getAll(), null, 4));    
-        dataCounter = INFO_DELAY;
-    } else {
-        dataCounter--;
-    }
+    console.log('Data: %s', JSON.stringify(smartcity.getAll(), null, 4));    
 }
 
 function loop() {    
-    smartcity.step();   
-    showInfo();
+    smartcity.step(); 
+    communications.step();
+    infoHandler();
 }
 
 function init() {
     smartcity.init();
+    infoHandler = withFrequency(showInfo, INFO_DELAY);
     setInterval(loop, LOOP_DELAY);
+    console.log('Smartcity started');
 }
 
 init();

@@ -24,7 +24,9 @@
 /* jshint unused:true */
 
 "use strict" ;
+
 var mraa = require("mraa"),
+    withFrequency = require('./utils').withFrequency,
     RED = new mraa.Gpio(2),
     GREEN = new mraa.Gpio(3),
     FLOOR1 = new mraa.Gpio(8),
@@ -39,17 +41,10 @@ var mraa = require("mraa"),
     },
     data = {},
     redStatus = true,
-    changeCounter = config.semaphoreTime;
+    semaphoreHandler;
 
 function setLed(led, status) {
     led.write(status?1:0);
-}
-
-function init() {
-    RED.dir(mraa.DIR_OUT);
-    GREEN.dir(mraa.DIR_OUT);
-    FLOOR1.dir(mraa.DIR_OUT);
-    FLOOR2.dir(mraa.DIR_OUT);
 }
 
 function manageParking() {
@@ -73,19 +68,13 @@ function manageLighting() {
 }
 
 function manageSemaphores() {
-    if (changeCounter == 0) {
-        changeCounter = config.semaphoreTime;
-        redStatus = !redStatus;        
-    } else {
-        changeCounter--;
-    }
-    
+    redStatus = !redStatus; 
     setLed(RED, redStatus);
     setLed(GREEN, !redStatus);    
 }
 
 function step() {
-    manageSemaphores();
+    semaphoreHandler();
     manageParking();
     manageLighting();
 }
@@ -100,6 +89,14 @@ function set(attribute, value) {
 
 function getAll() {
     return data;
+}
+
+function init() {
+    semaphoreHandler = withFrequency(manageSemaphores, config.semaphoreTime);
+    RED.dir(mraa.DIR_OUT);
+    GREEN.dir(mraa.DIR_OUT);
+    FLOOR1.dir(mraa.DIR_OUT);
+    FLOOR2.dir(mraa.DIR_OUT);
 }
 
 exports.init = init;
