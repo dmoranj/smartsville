@@ -29,10 +29,42 @@ var request = require('request'),
     smartcity = require('./smartcity'),
     withFrequency = require('./utils').withFrequency,
     config = {
-        iotahost: '192.168.1.35',
+        iotahost: '192.168.2.2',
         iotaport: 7896,
         frequency: 30
+    },
+    attributeMap = {
+        semaphoreFreq: 'semaphoreTime',
+        luminosityLimit: 'limitLum'
     };
+
+function extractCommands(body) {
+    var commands = body.split('|'),
+        key,
+        result = {};
+    
+    if (commands.length % 2 == 0) {        
+        for (var i=1; i < commands.length; i+= 2) {
+            key = commands[i-1].substr(commands[i-1].indexOf('@') + 1)
+            result[key] = commands[i];
+        }
+    } else {
+        console.log('Error processing body');
+    }
+    
+    return result;
+}
+
+function processCommand(body) {
+    var commands = extractCommands(body),
+        keys = Object.keys(commands);
+    
+    console.log('Processing commands:\n%s', JSON.stringify(commands, null, 4));
+    
+    for (var i=0; i < keys.length; i++) {
+        smartcity.set(attributeMap[keys[i]], commands[keys[i]]);
+    }
+}
 
 function sendData(payload) {
     var requestObj = {
@@ -41,7 +73,8 @@ function sendData(payload) {
         body: payload,
         qs: {
             k: '1234567890',
-            i: 'smartsville'
+            i: 'smartsville',
+            getCmd: 1
         },
         headers: {
             'content-type': 'text/plain'
@@ -52,7 +85,11 @@ function sendData(payload) {
         if (error) {
             console.log('Error trying to send data: %s', error);
         } else if (response.statusCode == 200) {
-            console.log('Data sent: %s', payload);
+            console.log('Data sent: %s. Data received: %s', payload, body);
+            
+            if (body !== '') {
+                processCommand(body);
+            }
         } else {
             console.log('Wrong status code sending data: %s', response.statusCode);
         }

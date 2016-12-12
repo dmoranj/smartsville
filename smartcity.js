@@ -83,8 +83,13 @@ function get(attribute) {
     return data[attribute];
 }
 
+function reloadConfig() {
+    semaphoreHandler = withFrequency(manageSemaphores, config.semaphoreTime);    
+}
+
 function set(attribute, value) {
-    data[attribute] = value;
+    config[attribute] = value;
+    reloadConfig();
 }
 
 function getAll() {
@@ -92,7 +97,7 @@ function getAll() {
 }
 
 function init() {
-    semaphoreHandler = withFrequency(manageSemaphores, config.semaphoreTime);
+    reloadConfig();
     RED.dir(mraa.DIR_OUT);
     GREEN.dir(mraa.DIR_OUT);
     FLOOR1.dir(mraa.DIR_OUT);
