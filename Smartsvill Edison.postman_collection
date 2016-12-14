@@ -1,0 +1,311 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Smartsvill Edison",
+		"_postman_id": "ae8d8032-512b-d135-b33a-b40f84cf2a75",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create API Key",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/services",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"services\": [\n    {\n      \"apikey\": \"{{apikey}}\",\n      \"resource\": \"/iot/d\",\n      \"type\": \"smartcity\",\n      \"protocol\": \"PDI-IoTA-UltraLight\"\n    }\n  ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create device",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/devices",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"devices\": [ \n        { \n            \"device_id\": \"{{deviceid}}\", \n            \"entity_name\": \"Smartsville\", \n            \"entity_type\": \"smartcity\", \n            \"protocol\": \"PDI-IoTA-UltraLight\",\n            \"attributes\": [ \n                  { \"object_id\": \"park1\", \"name\": \"Parking1\", \"type\": \"boolean\" },\n                  { \"object_id\": \"park2\", \"name\": \"Parking2\", \"type\": \"boolean\" },\n                  { \"object_id\": \"lum\", \"name\": \"Luminance\", \"type\": \"lumens\" }\n            ]\n        }\n    ]\n}\n\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Configurations",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/services",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Configurations",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/services?resource=%2Fiot%2Fd&apikey={{apikey}}",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Device Information",
+			"request": {
+				"url": "http://{{cbhost}}:{{cbport}}/v1/queryContext",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"entities\": [\n        {\n            \"isPattern\": \"true\",\n            \"id\": \".*\",\n            \"type\": \"smartcity\"\n        }\n    ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Send UL2.0 measure",
+			"request": {
+				"url": "http://{{iotahost}}:{{measureport}}/iot/d?k={{apikey}}&i={{deviceid}}&getCmd=1",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "text/plain",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "park1|true|park2|false|lum|300"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Devices",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/devices",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Device",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/devices/{{deviceid}}",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update device",
+			"request": {
+				"url": "http://{{iotahost}}:{{iotaport}}/iot/devices/{{deviceid}}",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n    \"commands\": [\n          { \"name\": \"semaphoreFreq\", \"type\": \"command\", \"value\": \" \" },\n          { \"name\": \"luminosityLimit\", \"type\": \"command\", \"value\": \" \" }\n    ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Send command",
+			"request": {
+				"url": "http://{{cbhost}}:{{cbport}}/v1/updateContext",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Fiware-Service",
+						"value": "{{service}}",
+						"description": ""
+					},
+					{
+						"key": "Fiware-ServicePath",
+						"value": "{{subservice}}",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"contextElements\": [\n        {\n            \"type\": \"smartcity\",\n            \"isPattern\": \"false\",\n            \"id\": \"Smartsville\",\n            \"attributes\": [\n                {\n                    \"name\": \"semaphoreFreq\",\n                    \"type\": \"command\",\n                    \"value\": \"2\"\n                },\n                {\n                    \"name\": \"luminosityLimit\",\n                    \"type\": \"command\",\n                    \"value\": \"1000\"\n                }\n            ]\n        }\n    ],\n    \"updateAction\": \"UPDATE\"\n} "
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
