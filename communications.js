@@ -30,6 +30,8 @@ var request = require('request'),
     withFrequency = require('./utils').withFrequency,
     config = {
         iotahost: '192.168.2.2',
+        deviceId: 'smartsville',
+        apikey: '1234567890',
         iotaport: 7896,
         frequency: 30
     },
@@ -55,26 +57,15 @@ function extractCommands(body) {
     return result;
 }
 
-function processCommand(body) {
-    var commands = extractCommands(body),
-        keys = Object.keys(commands);
-    
-    console.log('Processing commands:\n%s', JSON.stringify(commands, null, 4));
-    
-    for (var i=0; i < keys.length; i++) {
-        smartcity.set(attributeMap[keys[i]], commands[keys[i]]);
-    }
-}
-
-function sendData(payload) {
+function sendData(payload, getCmd) {
     var requestObj = {
         url: 'http://' + config.iotahost + ':' + config.iotaport + '/iot/d',
         method: 'POST',
         body: payload,
         qs: {
-            k: '1234567890',
-            i: 'smartsville',
-            getCmd: 1
+            k: config.apikey,
+            i: config.deviceId,
+            getCmd: getCmd
         },
         headers: {
             'content-type': 'text/plain'
@@ -88,12 +79,30 @@ function sendData(payload) {
             console.log('Data sent: %s. Data received: %s', payload, body);
             
             if (body !== '') {
-                processCommand(body);
+                process.nextTick(processCommand.bind(null, body));
             }
         } else {
             console.log('Wrong status code sending data: %s', response.statusCode);
         }
     }); 
+}
+
+function sendResponse(command, status) {
+    var payload = config.deviceId + '@' + command + '|' + status;
+    
+    sendData(payload);
+}
+
+function processCommand(body) {
+    var commands = extractCommands(body),
+        keys = Object.keys(commands);
+    
+    console.log('Processing commands:\n%s', JSON.stringify(commands, null, 4));
+    
+    for (var i=0; i < keys.length; i++) {
+        smartcity.set(attributeMap[keys[i]], commands[keys[i]]);
+        process.nextTick(sendResponse.bind(null, keys[i], 'OK'));
+    }
 }
 
 function createPayload(values) {
@@ -112,7 +121,7 @@ function processData() {
     var values = smartcity.getAll(),
         payload = createPayload(values);
     
-    sendData(payload);
+    sendData(payload, 1);
 }
 
 exports.step = withFrequency(processData, config.frequency);
